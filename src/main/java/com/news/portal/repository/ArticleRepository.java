@@ -8,5 +8,8 @@ import java.util.List;
 
 @Repository
 public interface ArticleRepository extends JpaRepository<Article, Long> {
-    List<Article> findArticleByAuthorId( Long authorId);
+    List<Article> findArticleById( Long authorId);
+    List<Article> findArticlesByAuthor_Id( Long authorId);
+    Article existsArticleById();
+
 }

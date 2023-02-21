@@ -9,7 +9,7 @@ import java.util.List;
 
 @Service
 public interface ArticleService {
-    Message addArticle(ArticleDto articleDto, Long authorId);
+    Message addArticle(ArticleDto articleDto);
 
     ArticleDto getArticleById(Long id);
 

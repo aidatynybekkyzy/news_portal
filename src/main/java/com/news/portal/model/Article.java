@@ -1,13 +1,14 @@
 package com.news.portal.model;
 
+import lombok.Builder;
 import lombok.Data;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Data
+@Builder
 @Entity
 @Table(name = "article")
 public class Article {
@@ -37,11 +38,16 @@ public class Article {
     @JoinColumn(name = "user_id", nullable = false, updatable = false)
     private User author;
 
+    public Article() {
 
-    public Article(String title, String preview, String content, User author) {
+    }
+
+    public Article(Long id, String title, String preview, String content, LocalDateTime created, User author) {
+        this.id = id;
         this.title = title;
         this.preview = preview;
         this.content = content;
+        this.created = created;
         this.author = author;
     }
 }
