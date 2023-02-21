@@ -19,18 +19,20 @@ import java.util.stream.Collectors;
 
 
 public class ArticleServiceImpl implements ArticleService {
+
     private final ArticleRepository articleRepository;
     private final ModelMapper modelMapper;
-    private ArticleMapper articleMapper;
+    private final ArticleMapper articleMapper;
 
-    public ArticleServiceImpl(ArticleRepository articleRepository, ModelMapper modelMapper) {
+    public ArticleServiceImpl(ArticleRepository articleRepository, ModelMapper modelMapper, ArticleMapper articleMapper) {
         this.articleRepository = articleRepository;
         this.modelMapper = modelMapper;
+        this.articleMapper = articleMapper;
     }
 
     @Override
     @Transactional
-    public Message addArticle(ArticleDto articleDto) {
+    public Message createArticle(ArticleDto articleDto) {
         List<Article> articles = articleRepository.findArticleById(articleDto.getId());
         Optional<Article> existingArticle = articles.stream()
                 .filter(book -> isArticleExist(articleDto).test(book))
@@ -40,7 +42,7 @@ public class ArticleServiceImpl implements ArticleService {
         }
         if (articleDto.getId() != null) {
             Article article = modelMapper.map(articleDto, Article.class);
-            //TODO check localdatetime
+            //TODO check localdatetime change name
             article.setCreated(LocalDateTime.now());
             articleRepository.save(article);
         }
@@ -55,33 +57,33 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     @Transactional(readOnly = true)
     public ArticleDto getArticleById(Long id) {
-        Article article = articleRepository.findById(id).orElseThrow(
-                () -> new ArticleNotFoundException("Article not found " + id));
-        return articleMapper.toDto(article);
+        return articleRepository.findById(id)
+                .map(articleMapper::toDto)
+                .orElseThrow(
+                        () -> new ArticleNotFoundException("Article not found " + id));
     }
 
     @Override
-    public Message updateArticle(Long articleId, ArticleDto updatableArticleDto) {
-        for (Article updatableArticle : articleRepository.findAll()) {
-            if (updatableArticle.getId().equals(updatableArticleDto.getId())) {
-                updatableArticle.setTitle(updatableArticleDto.getTitle());
-                updatableArticle.setPreview(updatableArticleDto.getPreview());
-                updatableArticle.setContent(updatableArticleDto.getContent());
-                updatableArticle.setCreated(updatableArticleDto.getCreated());
-                updatableArticle.setAuthor(updatableArticleDto.getAuthor());
-                return new Message("Article is updated");
-            }
-        }
-        return new Message("Article with id does not exist " + updatableArticleDto.getId());
+    public ArticleDto updateArticle(Long articleId, ArticleDto updatableArticleDto) {
+        Article article = articleRepository.findById(articleId).orElseThrow(()
+                -> new ArticleNotFoundException("Article could not be updates"));
+        article.setTitle(updatableArticleDto.getTitle());
+        article.setPreview(updatableArticleDto.getPreview());
+        article.setContent(updatableArticleDto.getContent());
+        article.setCreated(updatableArticleDto.getCreated());
+        article.setAuthor(updatableArticleDto.getAuthor());
+
+        Article updatedArticle = articleRepository.save(article);
+        return articleMapper.toDto(updatedArticle); //TODO check if no mistakes
     }
 
     @Override
-    public Message deleteArticle(Long id) {
-
-        return null;
+    public void deleteArticle(Long id) {
+        Article article = articleRepository.findById(id).orElseThrow(() -> new ArticleNotFoundException("Article could not be deleted"));
+        articleRepository.delete(article);
     }
 
-    @Override
+    @Override //TODO Pageable
     @Transactional(readOnly = true)
     public List<ArticleDto> getAllArticlesByUserId(Long userId) {
         return articleRepository.findArticlesByAuthor_Id(userId)
