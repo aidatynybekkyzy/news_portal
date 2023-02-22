@@ -31,8 +31,8 @@ public class Article {
 
     @Column(name = "created", insertable = false, updatable = false,
             columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-    @Temporal(TemporalType.TIMESTAMP)
-    private LocalDateTime created;
+
+    private LocalDateTime createdDate;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false, updatable = false)
@@ -47,7 +47,7 @@ public class Article {
         this.title = title;
         this.preview = preview;
         this.content = content;
-        this.created = created;
+        this.createdDate = created;
         this.author = author;
     }
 }

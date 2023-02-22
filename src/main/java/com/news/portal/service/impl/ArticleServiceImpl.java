@@ -1,13 +1,18 @@
-package com.news.portal.service;
+package com.news.portal.service.impl;
 
-import com.news.portal.ArticleMapper;
+import com.news.portal.service.ArticleService;
+import com.news.portal.service.mapper.ArticleMapper;
 import com.news.portal.dto.ArticleDto;
+import com.news.portal.dto.ArticleResponse;
 import com.news.portal.exception.ArticleAlreadyExistsException;
 import com.news.portal.exception.ArticleNotFoundException;
 import com.news.portal.model.Article;
 import com.news.portal.model.Message;
 import com.news.portal.repository.ArticleRepository;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -16,7 +21,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
 
 public class ArticleServiceImpl implements ArticleService {
 
@@ -42,8 +46,7 @@ public class ArticleServiceImpl implements ArticleService {
         }
         if (articleDto.getId() != null) {
             Article article = modelMapper.map(articleDto, Article.class);
-            //TODO check localdatetime change name
-            article.setCreated(LocalDateTime.now());
+            article.setCreatedDate(LocalDateTime.now());
             articleRepository.save(article);
         }
         return new Message("New Article added");
@@ -64,13 +67,14 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
+    @Transactional
     public ArticleDto updateArticle(Long articleId, ArticleDto updatableArticleDto) {
         Article article = articleRepository.findById(articleId).orElseThrow(()
                 -> new ArticleNotFoundException("Article could not be updates"));
         article.setTitle(updatableArticleDto.getTitle());
         article.setPreview(updatableArticleDto.getPreview());
         article.setContent(updatableArticleDto.getContent());
-        article.setCreated(updatableArticleDto.getCreated());
+        article.setCreatedDate(updatableArticleDto.getCreatedDate());
         article.setAuthor(updatableArticleDto.getAuthor());
 
         Article updatedArticle = articleRepository.save(article);
@@ -78,17 +82,29 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public void deleteArticle(Long id) {
-        Article article = articleRepository.findById(id).orElseThrow(() -> new ArticleNotFoundException("Article could not be deleted"));
+    @Transactional
+    public Message deleteArticle(Long id) {
+        Article article = articleRepository.findById(id).orElseThrow(
+                () -> new ArticleNotFoundException("Article could not be deleted"));
         articleRepository.delete(article);
+        return new Message("Article deleted successfully");
     }
 
     @Override //TODO Pageable
     @Transactional(readOnly = true)
-    public List<ArticleDto> getAllArticlesByUserId(Long userId) {
-        return articleRepository.findArticlesByAuthor_Id(userId)
-                .stream()
-                .map(articleMapper::toDto)
-                .collect(Collectors.toList());
+    public ArticleResponse getAllArticles(int pageNo, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Page<Article> articles = articleRepository.findAll(pageable);
+        List<Article> articleList = articles.getContent();
+        List<ArticleDto> content = articleList.stream().map(articleMapper::toDto).collect(Collectors.toList());
+
+        ArticleResponse articleResponse = new ArticleResponse();
+        articleResponse.setArticleContent(content);
+        articleResponse.setPageNo(articles.getNumber());
+        articleResponse.setPageSize(articles.getSize());
+        articleResponse.setTotalElements(articles.getTotalElements());
+        articleResponse.setTotalPages(articles.getTotalPages());
+        articleResponse.setLast(articles.isLast());
+        return articleResponse;
     }
 }

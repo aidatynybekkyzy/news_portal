@@ -17,7 +17,7 @@ public class ArticleDto {
     private String title;
     private String preview;
     private String content;
-    private LocalDateTime created;
+    private LocalDateTime createdDate;
     private User author;
 
 }

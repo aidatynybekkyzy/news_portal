@@ -1,7 +1,9 @@
 package com.news.portal.service;
 
-import com.news.portal.ArticleMapper;
+import com.news.portal.service.impl.ArticleServiceImpl;
+import com.news.portal.service.mapper.ArticleMapper;
 import com.news.portal.dto.ArticleDto;
+import com.news.portal.dto.ArticleResponse;
 import com.news.portal.exception.ArticleAlreadyExistsException;
 import com.news.portal.exception.ArticleNotFoundException;
 import com.news.portal.model.Article;
@@ -10,6 +12,7 @@ import com.news.portal.repository.ArticleRepository;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 
@@ -17,6 +20,8 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.assertj.core.api.Assertions;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
@@ -52,7 +57,7 @@ class ArticleServiceImplTest {
                         "                        \" мэрии предоставили 24.kg схему.")
                 .content("Маршрут № 31 — жилмассив «Ынтымак» — кольцевой, протяженность 34 километра, " +
                         "интервал — 7 минут. Выделено 24 автобуса.")
-                .created(LocalDateTime.now())
+                .createdDate(LocalDateTime.now())
                 .build();
 
         Article article1 = Article.builder()
@@ -63,7 +68,7 @@ class ArticleServiceImplTest {
                         "                        \"мэрии предоставили 24.kg схему.")
                 .content("Маршрут № 31 — жилмассив «Ынтымак» — кольцевой, протяженность 34 километра, \n" +
                         "                        интервал — 7 минут. Выделено 24 автобуса.")
-                .created((LocalDateTime.now()))
+                .createdDate((LocalDateTime.now()))
                 .build();
 
         //TODO finish
@@ -83,7 +88,7 @@ class ArticleServiceImplTest {
                 .title("В Бишкеке разработали новые автобусные маршруты.")
                 .preview("В департаменте транспорта и развития дорожно-транспортной инфраструктуры мэрии предоставили 24.kg схему.")
                 .content("Маршрут № 31 — жилмассив «Ынтымак» — кольцевой, протяженность 34 километра, интервал — 7 минут. Выделено 24 автобуса.")
-                .created(LocalDateTime.now())
+                .createdDate(LocalDateTime.now())
                 .build();
 
         String errorMsg = "Unable to save an incomplete entity : " + articleDto;
@@ -151,7 +156,7 @@ class ArticleServiceImplTest {
                         "                        \"мэрии предоставили 24.kg схему.")
                 .content("Маршрут № 31 — жилмассив «Ынтымак» — кольцевой, протяженность 34 километра, \n" +
                         "                        интервал — 7 минут. Выделено 24 автобуса.")
-                .created((LocalDateTime.now()))
+                .createdDate((LocalDateTime.now()))
                 .build();
 
         ArticleDto articleDto = ArticleDto.builder()
@@ -162,7 +167,7 @@ class ArticleServiceImplTest {
                         "                        \" мэрии предоставили 24.kg схему.")
                 .content("Маршрут № 31 — жилмассив «Ынтымак» — кольцевой, протяженность 34 километра, " +
                         "интервал — 7 минут. Выделено 24 автобуса.")
-                .created(LocalDateTime.now())
+                .createdDate(LocalDateTime.now())
                 .build();
 
         //when
@@ -186,7 +191,7 @@ class ArticleServiceImplTest {
                 .title("В Бишкеке разработали новые автобусные маршруты.")
                 .preview("В департаменте транспорта и развития дорожно-транспортной инфраструктуры мэрии предоставили 24.kg схему.")
                 .content("Маршрут № 31 — жилмассив «Ынтымак» — кольцевой, протяженность 34 километра, интервал — 7 минут. Выделено 24 автобуса.")
-                .created((LocalDateTime.now()))
+                .createdDate((LocalDateTime.now()))
                 .build();
 
         //when
@@ -195,6 +200,19 @@ class ArticleServiceImplTest {
         //then
         assert article != null;
         articleService.deleteArticle(article.getId());
+    }
 
+    @Test
+    void shouldReturnAllArticles_ReturnsArticleResponse() {
+        //given
+        Page<Article> articles = Mockito.mock(Page.class);
+
+        //when
+        when(articleRepositoryMock.findAll(any(Pageable.class))).thenReturn(articles);
+
+        ArticleResponse savedArticle = articleService.getAllArticles(1,10);
+
+        //then
+        Assertions.assertThat(savedArticle).isNotNull();
     }
 }

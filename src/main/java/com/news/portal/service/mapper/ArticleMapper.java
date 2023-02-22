@@ -1,4 +1,4 @@
-package com.news.portal;
+package com.news.portal.service.mapper;
 
 import com.news.portal.dto.ArticleDto;
 import com.news.portal.model.Article;
