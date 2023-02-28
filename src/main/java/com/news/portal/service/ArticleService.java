@@ -17,7 +17,6 @@ public interface ArticleService {
 
     Message deleteArticle(Long id);
 
-    //TODO Pageable
     @Transactional(readOnly = true)
     ArticleResponse getAllArticles(int pageNo, int pageSize);
 }

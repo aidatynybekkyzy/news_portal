@@ -15,7 +15,7 @@ import java.util.Set;
 @Setter
 @Table(name = "portal_user")
 @NoArgsConstructor
-public class User {
+public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false, updatable = false, unique = true)

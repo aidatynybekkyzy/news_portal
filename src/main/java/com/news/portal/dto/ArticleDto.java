@@ -1,6 +1,6 @@
 package com.news.portal.dto;
 
-import com.news.portal.model.User;
+import com.news.portal.model.UserEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,6 +18,6 @@ public class ArticleDto {
     private String preview;
     private String content;
     private LocalDateTime createdDate;
-    private User author;
+    private UserEntity author;
 
 }

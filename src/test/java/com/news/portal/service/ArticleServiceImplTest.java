@@ -14,7 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.modelmapper.ModelMapper;
+
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -42,7 +42,7 @@ class ArticleServiceImplTest {
 
     @BeforeEach
     public void setUp() {
-        articleService = new ArticleServiceImpl(articleRepositoryMock, new ModelMapper(), articleMapper);
+        articleService = new ArticleServiceImpl(articleRepositoryMock, articleMapper);
     }
 
     @Test //TODO change name

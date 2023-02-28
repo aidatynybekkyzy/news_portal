@@ -1,16 +1,16 @@
 package com.news.portal.repository;
 
-import com.news.portal.model.User;
+import com.news.portal.model.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<UserEntity, Long> {
     Boolean existsUserByUsername(String username);
 
-    Optional<User> findUserByUsername(String username);
+    Optional<UserEntity> findByUsername(String username);
 
 
 }

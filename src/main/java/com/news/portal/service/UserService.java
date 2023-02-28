@@ -1,10 +1,10 @@
 package com.news.portal.service;
 
 
-import com.news.portal.model.User;
+import com.news.portal.model.UserEntity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 public interface UserService extends UserDetailsService {
-    User getByUsername(String  username);
+    UserEntity getByUsername(String  username);
 
 }

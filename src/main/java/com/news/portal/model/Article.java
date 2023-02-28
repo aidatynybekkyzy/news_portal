@@ -2,6 +2,7 @@ package com.news.portal.model;
 
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -10,6 +11,7 @@ import java.time.LocalDateTime;
 @Data
 @Builder
 @Entity
+@NoArgsConstructor
 @Table(name = "article")
 public class Article {
     @Id
@@ -36,13 +38,10 @@ public class Article {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false, updatable = false)
-    private User author;
+    private UserEntity author;
 
-    public Article() {
 
-    }
-
-    public Article(Long id, String title, String preview, String content, LocalDateTime created, User author) {
+    public Article(Long id, String title, String preview, String content, LocalDateTime created, UserEntity author) {
         this.id = id;
         this.title = title;
         this.preview = preview;

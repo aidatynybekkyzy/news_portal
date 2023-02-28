@@ -9,7 +9,7 @@ import com.news.portal.exception.ArticleNotFoundException;
 import com.news.portal.model.Article;
 import com.news.portal.model.Message;
 import com.news.portal.repository.ArticleRepository;
-import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -22,15 +22,16 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
+@Service
 public class ArticleServiceImpl implements ArticleService {
 
     private final ArticleRepository articleRepository;
-    private final ModelMapper modelMapper;
     private final ArticleMapper articleMapper;
 
-    public ArticleServiceImpl(ArticleRepository articleRepository, ModelMapper modelMapper, ArticleMapper articleMapper) {
+    @Autowired
+    public ArticleServiceImpl(ArticleRepository articleRepository, ArticleMapper articleMapper) {
         this.articleRepository = articleRepository;
-        this.modelMapper = modelMapper;
         this.articleMapper = articleMapper;
     }
 
@@ -45,7 +46,7 @@ public class ArticleServiceImpl implements ArticleService {
             throw new ArticleAlreadyExistsException("The same article already exists");
         }
         if (articleDto.getId() != null) {
-            Article article = modelMapper.map(articleDto, Article.class);
+            Article article = articleMapper.toEntity(articleDto);
             article.setCreatedDate(LocalDateTime.now());
             articleRepository.save(article);
         }
@@ -107,4 +108,5 @@ public class ArticleServiceImpl implements ArticleService {
         articleResponse.setLast(articles.isLast());
         return articleResponse;
     }
+
 }
