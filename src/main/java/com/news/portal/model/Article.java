@@ -31,7 +31,7 @@ public class Article {
     @Column(name = "content", nullable = false, length = 65535)
     private String content;
 
-    @Column(name = "created", insertable = false, updatable = false,
+    @Column(name = "createdDate", insertable = false, updatable = false,
             columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
 
     private LocalDateTime createdDate;

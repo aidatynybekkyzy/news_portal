@@ -9,6 +9,7 @@ import com.news.portal.exception.ArticleNotFoundException;
 import com.news.portal.model.Article;
 import com.news.portal.model.Message;
 import com.news.portal.repository.ArticleRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -24,6 +25,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class ArticleServiceImpl implements ArticleService {
 
     private final ArticleRepository articleRepository;
@@ -38,11 +40,13 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     @Transactional
     public Message createArticle(ArticleDto articleDto) {
+        log.info("Creating new article");
         List<Article> articles = articleRepository.findArticleById(articleDto.getId());
         Optional<Article> existingArticle = articles.stream()
                 .filter(book -> isArticleExist(articleDto).test(book))
                 .findFirst();
         if (existingArticle.isPresent()) {
+            log.error("The same article already exists");
             throw new ArticleAlreadyExistsException("The same article already exists");
         }
         if (articleDto.getId() != null) {
@@ -61,6 +65,7 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     @Transactional(readOnly = true)
     public ArticleDto getArticleById(Long id) {
+        log.info("Getting Article by Id");
         return articleRepository.findById(id)
                 .map(articleMapper::toDto)
                 .orElseThrow(
@@ -79,6 +84,7 @@ public class ArticleServiceImpl implements ArticleService {
         article.setAuthor(updatableArticleDto.getAuthor());
 
         Article updatedArticle = articleRepository.save(article);
+        log.info("Saving updated article");
         return articleMapper.toDto(updatedArticle); //TODO check if no mistakes
     }
 
@@ -88,6 +94,7 @@ public class ArticleServiceImpl implements ArticleService {
         Article article = articleRepository.findById(id).orElseThrow(
                 () -> new ArticleNotFoundException("Article could not be deleted"));
         articleRepository.delete(article);
+        log.info("Deleting article with id", article.getId());
         return new Message("Article deleted successfully");
     }
 
@@ -106,6 +113,7 @@ public class ArticleServiceImpl implements ArticleService {
         articleResponse.setTotalElements(articles.getTotalElements());
         articleResponse.setTotalPages(articles.getTotalPages());
         articleResponse.setLast(articles.isLast());
+        log.info("Getting all articles");
         return articleResponse;
     }
 
