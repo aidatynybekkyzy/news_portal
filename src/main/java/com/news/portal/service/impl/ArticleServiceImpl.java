@@ -43,7 +43,7 @@ public class ArticleServiceImpl implements ArticleService {
         log.info("Creating new article");
         List<Article> articles = articleRepository.findArticleById(articleDto.getId());
         Optional<Article> existingArticle = articles.stream()
-                .filter(book -> isArticleExist(articleDto).test(book))
+                .filter(article -> isArticleExist(articleDto).test(article))
                 .findFirst();
         if (existingArticle.isPresent()) {
             log.error("The same article already exists");
@@ -81,7 +81,7 @@ public class ArticleServiceImpl implements ArticleService {
         article.setPreview(updatableArticleDto.getPreview());
         article.setContent(updatableArticleDto.getContent());
         article.setCreatedDate(updatableArticleDto.getCreatedDate());
-        article.setAuthor(updatableArticleDto.getAuthor());
+      //  article.setAuthor(updatableArticleDto.getAuthor());
 
         Article updatedArticle = articleRepository.save(article);
         log.info("Saving updated article");
