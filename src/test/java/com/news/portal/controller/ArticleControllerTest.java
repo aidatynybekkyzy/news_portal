@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -76,7 +77,7 @@ class ArticleControllerTest {
     @Test
     public void getAllArticle_ShouldReturnResponseArticleDto() throws Exception {
         ArticleResponse responseDto = ArticleResponse.builder().pageSize(10).last(true).pageNo(1).articleContent(Arrays.asList(articleDto)).build();
-        when(articleService.getAllArticles(1, 10)).thenReturn(responseDto);
+        when(articleService.getAllArticles(1, 10)).thenReturn((Page<ArticleDto>) responseDto);
 
         ResultActions response = mockMvc.perform(get("/news_portal/article")
                 .contentType(MediaType.APPLICATION_JSON)

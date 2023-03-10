@@ -2,14 +2,22 @@ package com.news.portal.controller;
 
 import com.news.portal.dto.ArticleDto;
 import com.news.portal.dto.ArticleResponse;
+import com.news.portal.dto.UserDto;
 import com.news.portal.model.Message;
+import com.news.portal.model.UserEntity;
+import com.news.portal.security.config.LoggedInUser;
 import com.news.portal.service.ArticleService;
+import com.news.portal.service.mapper.ArticleMapper;
+import com.news.portal.service.mapper.UserMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.neo4j.Neo4jProperties;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -17,12 +25,15 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping(path = "/news_portal/article")
 @ComponentScan("com.news.portal.service")
 public class ArticleController {
+    private final UserMapper userMapper;
 
     private final ArticleService articleService;
 
     @Autowired
-    public ArticleController(ArticleService articleService) {
+    public ArticleController(ArticleService articleService,
+                             UserMapper userMapper) {
         this.articleService = articleService;
+        this.userMapper = userMapper;
     }
 
     @GetMapping("/{articleId}")
@@ -33,16 +44,18 @@ public class ArticleController {
 
     @GetMapping("/all")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public ResponseEntity<ArticleResponse> getAllArticles(
+    public ResponseEntity<Page<ArticleDto>> getAllArticles(
             @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
             @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize
     ) {
-        return new ResponseEntity<>(articleService.getAllArticles(pageNo, pageSize), HttpStatus.OK);
+        Page<ArticleDto> newsPage = articleService.getAllArticles(pageNo, pageSize );
+        return  ResponseEntity.ok(newsPage);
     }
 
     @PostMapping("/create")
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<Message> createArticle(@RequestBody ArticleDto articleDto) {
+    public ResponseEntity<Object> createArticle(@RequestBody ArticleDto articleDto, @LoggedInUser UserEntity user) {
+        articleDto.setAuthor(userMapper.toDto(user));
         return new ResponseEntity<>(articleService.createArticle(articleDto), HttpStatus.CREATED);
     }
 

@@ -4,6 +4,7 @@ import com.news.portal.dto.ArticleDto;
 import com.news.portal.dto.ArticleResponse;
 import com.news.portal.model.Message;
 
+import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
 
 public interface ArticleService {
@@ -16,5 +17,5 @@ public interface ArticleService {
     Message deleteArticle(Long id);
 
     @Transactional(readOnly = true)
-    ArticleResponse getAllArticles(int pageNo, int pageSize);
+    Page<ArticleDto> getAllArticles(int pageNo, int pageSize);
 }

@@ -1,5 +1,6 @@
 package com.news.portal.security.config;
 
+import com.news.portal.security.config.jwt.JWTAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.context.annotation.Bean;

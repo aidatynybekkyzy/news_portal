@@ -3,9 +3,11 @@ package com.news.portal.model;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 @Data
@@ -19,21 +21,22 @@ public class Article {
     @Column(nullable = false, updatable = false, unique = true)
     private Long id;
 
-    @NotBlank(message = "{validation.article.title}")
-    @Column(name = "title", nullable = false, length = 100)
+
+    @Column(name = "title", nullable = false)
+    @Size(min = 2, max = 100, message = "Title should be from 2 to 100 characters")
     private String title;
 
-    @NotBlank(message = "{validation.article.preview}")
     @Column(name = "preview", nullable = false)
+    @Size(min = 10, max = 500, message = "Preview content should be from 10 to 500 characters")
     private String preview;
 
-    @NotBlank(message = "{validation.article.content}")
-    @Column(name = "content", nullable = false, length = 65535)
+    @Column(name = "content", nullable = false)
+    @Size(min = 20, max = 2048, message = "Content should be from 20 to 2048 characters")
     private String content;
 
-    @Column(name = "createdDate", insertable = false, updatable = false,
-            columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-
+    @Column(name = "publishedDate")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @NotNull
     private LocalDateTime createdDate;
 
     @ManyToOne(fetch = FetchType.EAGER)

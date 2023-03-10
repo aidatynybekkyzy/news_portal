@@ -55,6 +55,14 @@ public class UserEntity implements UserDetails {
         return authorities;
     }
 
+    public UserEntity(Long id, String firstName, String lastName, String email, String password) {
+        this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.password = password;
+    }
+
     @Override
     public String getPassword() {
         return password;
