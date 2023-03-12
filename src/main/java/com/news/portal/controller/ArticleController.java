@@ -1,23 +1,18 @@
 package com.news.portal.controller;
 
 import com.news.portal.dto.ArticleDto;
-import com.news.portal.dto.ArticleResponse;
-import com.news.portal.dto.UserDto;
 import com.news.portal.model.Message;
 import com.news.portal.model.UserEntity;
-import com.news.portal.security.config.LoggedInUser;
+import com.news.portal.security.LoggedInUser;
 import com.news.portal.service.ArticleService;
-import com.news.portal.service.mapper.ArticleMapper;
-import com.news.portal.service.mapper.UserMapper;
+import com.news.portal.mapper.UserMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.neo4j.Neo4jProperties;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController

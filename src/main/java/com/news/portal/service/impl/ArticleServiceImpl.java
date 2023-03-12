@@ -1,14 +1,16 @@
 package com.news.portal.service.impl;
 
+import com.news.portal.model.Language;
 import com.news.portal.service.ArticleService;
-import com.news.portal.service.mapper.ArticleMapper;
+import com.news.portal.mapper.ArticleMapper;
 import com.news.portal.dto.ArticleDto;
 import com.news.portal.exception.ArticleAlreadyExistsException;
 import com.news.portal.exception.ArticleNotFoundException;
 import com.news.portal.model.Article;
 import com.news.portal.model.Message;
 import com.news.portal.repository.ArticleRepository;
-import com.news.portal.service.mapper.UserMapper;
+import com.news.portal.mapper.UserMapper;
+import com.news.portal.service.LanguageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -18,28 +20,33 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
 @Slf4j
 public class ArticleServiceImpl implements ArticleService {
-    @Autowired
+
     private final UserMapper userMapper;
 
     private final ArticleRepository articleRepository;
     private final ArticleMapper articleMapper;
 
+    private final LanguageService languageService;
+
     @Autowired
-    public ArticleServiceImpl(UserMapper userMapper, ArticleRepository articleRepository, ArticleMapper articleMapper) {
+    public ArticleServiceImpl(UserMapper userMapper, ArticleRepository articleRepository, ArticleMapper articleMapper, LanguageService languageService) {
         this.userMapper = userMapper;
         this.articleRepository = articleRepository;
         this.articleMapper = articleMapper;
+        this.languageService = languageService;
     }
 
     @Override
     @Transactional
     public Message createArticle(ArticleDto articleDto) {
         log.info("Creating new article");
+        Long languageId = languageService.getLanguageIdByLocale();
         Optional<Article> optionalArticle = articleRepository.findByTitle(articleDto.getTitle());
 
         if (optionalArticle.isPresent()) {
@@ -51,8 +58,9 @@ public class ArticleServiceImpl implements ArticleService {
         article.setPreview(articleDto.getPreview());
         article.setContent(articleDto.getContent());
         article.setAuthor(userMapper.toEntity(articleDto.getAuthor()));
-        article.setCreatedDate(articleDto.getCreatedDate());
-
+        article.setPublishedDate(articleDto.getCreatedDate());
+        Language language = languageService.getLanguageByLocale().orElseThrow(() -> new NoSuchElementException("Such language not found"));
+        article.setLanguage(language);
         articleRepository.save(article);
 
         return new Message("New Article added");
@@ -62,11 +70,23 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     @Transactional(readOnly = true)
     public ArticleDto getArticleById(Long id) {
+        long languageId = languageService.getLanguageIdByLocale();
         log.info("Getting Article by Id");
-        return articleRepository.findById(id)
+        return articleRepository.findByIdAndLanguageId(id, languageId)
                 .map(articleMapper::toDto)
                 .orElseThrow(
                         () -> new ArticleNotFoundException("Article not found " + id));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ArticleDto> getAllArticles(int pageNo, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.Direction.DESC, "createdDate");
+        Page<Article> articlesPage = articleRepository.findAllByOrderByPublishedDate(pageable);
+
+        log.info("Getting all articles");
+
+        return articlesPage.map(articleMapper::toDto);
     }
 
     @Override
@@ -98,7 +118,7 @@ public class ArticleServiceImpl implements ArticleService {
         }
 
         if (articleDto.getCreatedDate() != null) {
-            article.setCreatedDate(articleDto.getCreatedDate());
+            article.setPublishedDate(articleDto.getCreatedDate());
         }
 
         article = articleRepository.save(article);
@@ -113,20 +133,10 @@ public class ArticleServiceImpl implements ArticleService {
                 () -> new ArticleNotFoundException("Article with id" + id + " not found"));
         articleRepository.delete(article);
 
-        log.info("Deleting article with id" +  article.getId());
+        log.info("Deleting article with id" + article.getId());
 
         return new Message("Article deleted successfully");
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public Page<ArticleDto> getAllArticles(int pageNo, int pageSize) {
-        Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.Direction.DESC, "createdDate");
-        Page<Article> articlesPage = articleRepository.findAllByOrderByCreatedDate(pageable);
-
-        log.info("Getting all articles");
-
-        return articlesPage.map(articleMapper::toDto);
-    }
 
 }

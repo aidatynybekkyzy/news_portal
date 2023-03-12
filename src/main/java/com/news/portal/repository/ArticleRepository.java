@@ -12,8 +12,9 @@ import java.util.Optional;
 
 @Repository
 public interface ArticleRepository extends JpaRepository<Article, Long> {
-   Article findArticleById(Long authorId);
-   Page<Article> findAllByOrderByCreatedDate(Pageable pageable);
 
+    Page<Article> findAllByOrderByPublishedDate(Pageable pageable);
     Optional<Article> findByTitle(String title);
+    Optional<Article> findByIdAndLanguageId(Long articleId, Long languageId);
+
 }

@@ -1,6 +1,6 @@
-package com.news.portal.security.config;
+package com.news.portal.config;
 
-import com.news.portal.security.config.jwt.JWTAuthenticationFilter;
+import com.news.portal.security.jwt.JWTAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.context.annotation.Bean;
@@ -29,7 +29,7 @@ public class SecurityConfig {
                 .csrf()
                 .disable()
                 .authorizeHttpRequests()
-                .antMatchers("/news_portal/auth/**")
+                .antMatchers("/auth/**")
                     .permitAll()
                 .anyRequest()
                     .authenticated()
@@ -40,7 +40,7 @@ public class SecurityConfig {
                     .authenticationProvider(authenticationProvider)
                     .addFilterBefore(jwtAuthFilter,UsernamePasswordAuthenticationFilter.class )
                 .logout()
-                .logoutUrl("/news_portal/auth/logout")
+                .logoutUrl("/auth/logout")
                 .addLogoutHandler(logoutHandler)
                 .logoutSuccessHandler((request, response, authentication) ->
                         SecurityContextHolder.clearContext());

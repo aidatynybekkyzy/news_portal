@@ -86,9 +86,22 @@
 			<artifactId>mapstruct-processor</artifactId>
 			<version>1.5.3.Final</version>
 		</dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
     </dependencies>
 
 	<build>
+			<resources>
+				<resource>
+					<filtering>true</filtering>
+					<directory>src/main/resources</directory>
+					<includes>
+						<include>**/*.yml</include>
+					</includes>
+				</resource>
+			</resources>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
@@ -104,5 +117,6 @@
 			</plugin>
 		</plugins>
 	</build>
+
 
 </project>

@@ -7,13 +7,15 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
 import java.util.*;
 
 @Entity
 @Data
 @Builder
-@Table(name = "portal_user")
+@Table(name = "users")
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserEntity implements UserDetails {
@@ -23,13 +25,16 @@ public class UserEntity implements UserDetails {
     private Long id;
 
     @Size(min = 4, max = 50, message = "{validation.user.loginSize}")
-    @Column(name = "firstname", nullable = false, unique = true)
+    @Column(name = "firstname", nullable = false)
     private String firstName;
 
     @Size(min = 4, max = 50, message = "{validation.user.loginSize}")
-    @Column(name = "lastname", nullable = false, unique = true)
+    @Column(name = "lastname", nullable = false)
     private String lastName;
 
+    @Column(name = "email")
+    @Email
+    @NotEmpty
     private String email;
 
     @Size(min = 7, max = 60, message = "{validation.user.passwordSize}")

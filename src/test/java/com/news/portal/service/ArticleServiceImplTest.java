@@ -1,19 +1,17 @@
 package com.news.portal.service;
 
-import com.news.portal.model.UserEntity;
 import com.news.portal.service.impl.ArticleServiceImpl;
-import com.news.portal.service.mapper.ArticleMapper;
+import com.news.portal.mapper.ArticleMapper;
 import com.news.portal.dto.ArticleDto;
 import com.news.portal.exception.ArticleAlreadyExistsException;
 import com.news.portal.exception.ArticleNotFoundException;
 import com.news.portal.model.Article;
 import com.news.portal.model.Message;
 import com.news.portal.repository.ArticleRepository;
-import com.news.portal.service.mapper.UserMapper;
+import com.news.portal.mapper.UserMapper;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 
@@ -21,7 +19,6 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 import org.assertj.core.api.Assertions;
-import org.springframework.data.domain.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
@@ -41,11 +38,14 @@ class ArticleServiceImplTest {
     @Mock
     private UserMapper userMapper;
 
+    @Mock
+    private LanguageService languageService;
+
     Message expectedMessage = new Message("New Article added");
 
     @BeforeEach
     public void setUp() {
-        articleService = new ArticleServiceImpl(userMapper, articleRepositoryMock, articleMapper);
+        articleService = new ArticleServiceImpl(userMapper, articleRepositoryMock, articleMapper, languageService);
     }
 
     @Test

@@ -5,7 +5,7 @@ import com.news.portal.dto.ArticleDto;
 import com.news.portal.dto.ArticleResponse;
 import com.news.portal.model.Article;
 import com.news.portal.service.ArticleService;
-import com.news.portal.service.mapper.ArticleMapper;
+import com.news.portal.mapper.ArticleMapper;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
