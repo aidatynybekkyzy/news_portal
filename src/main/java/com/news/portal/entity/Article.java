@@ -1,7 +1,9 @@
-package com.news.portal.model;
+package com.news.portal.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import lombok.*;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -14,13 +16,11 @@ import java.time.LocalDateTime;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "article",
-        uniqueConstraints =
-        @UniqueConstraint(columnNames = { "language_id", "author_id"}))
+@Table(name = "article")
 public class Article {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(nullable = false, updatable = false, unique = true)
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "article_seq_gen")
+    @SequenceGenerator(name = "article_seq_gen", sequenceName = "article_sequence", allocationSize = 1)
     private Long id;
 
 
@@ -37,7 +37,8 @@ public class Article {
     private String content;
 
     @Column(name = "publishedDate")
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "YYYY-MM-DD hh:mm:ss")
     @NotNull
     private LocalDateTime publishedDate;
 

@@ -5,8 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Set;
-
 @Data
 @Builder
 @AllArgsConstructor
@@ -14,5 +12,4 @@ import java.util.Set;
 public class LanguageDto {
     private Long id;
     private String code;
-    private Set<ArticleDto> articleDtosSet;
 }

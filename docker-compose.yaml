@@ -4,9 +4,11 @@ services:
     image: news-portal
     build:
       context: .
+    ports:
+      - "8080:8080"
     depends_on:
-      - db
-  db:
+      - postgresql
+  postgresql:
     image: postgres:15.1
     container_name: database
     restart: always

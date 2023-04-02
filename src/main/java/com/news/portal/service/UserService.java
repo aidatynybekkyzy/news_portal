@@ -1,11 +1,12 @@
 package com.news.portal.service;
 
+import com.news.portal.entity.UserEntity;
 
-import com.news.portal.model.Role;
-import com.news.portal.model.UserEntity;
-import org.springframework.security.core.userdetails.UserDetailsService;
+import java.util.Optional;
 
-public interface UserService extends UserDetailsService {
-    UserEntity getByUsername(String username);
+public interface UserService {
 
+    Optional<UserEntity> findUserByEmail(String email);
+
+    boolean userAuthentificated(String email, String password);
 }

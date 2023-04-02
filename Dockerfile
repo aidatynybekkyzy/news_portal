@@ -1,4 +1,7 @@
-#FROM eclipse-temurin:17-jdk-alpine
-#VOLUME /tmp
-#COPY target/*.jar app.jar
-#ENTRYPOINT ["java","-jar","/app.jar"]
+FROM maven AS build
+WORKDIR /app
+COPY . .
+RUN mvn package
+
+FROM tomcat
+COPY --from=build /app/target/file.war /usr/local/tomcat/webapps

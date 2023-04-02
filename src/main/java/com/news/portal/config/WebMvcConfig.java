@@ -1,6 +1,5 @@
 package com.news.portal.config;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.LocaleResolver;
@@ -15,19 +14,11 @@ import java.util.Locale;
 @Configuration
 @EnableWebMvc
 public class WebMvcConfig implements WebMvcConfigurer {
-    /*
-     * Internationalization settings
-     */
-    /*@Value("${locale.default}") //en
-    private String defaultLocale;
-
-    @Value("${locale.paramName}") //locale
-    private String localeParamName;*/
 
     @Bean("localeResolverBean")
     public LocaleResolver localeResolverBean() {
         CookieLocaleResolver cookieLocaleResolver = new CookieLocaleResolver();
-        cookieLocaleResolver.setDefaultLocale(new Locale("en"));
+        cookieLocaleResolver.setDefaultLocale(new Locale("ru"));
         return cookieLocaleResolver;
     }
 

@@ -1,7 +1,7 @@
 package com.news.portal.mapper;
 
 import com.news.portal.dto.ArticleDto;
-import com.news.portal.model.Article;
+import com.news.portal.entity.Article;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

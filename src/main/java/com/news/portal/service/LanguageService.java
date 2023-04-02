@@ -1,11 +1,13 @@
 package com.news.portal.service;
 
-import com.news.portal.model.Language;
+import com.news.portal.entity.Language;
+import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
+@Service
 public interface LanguageService {
-    Long getLanguageIdByLocale();
+    long getLanguageIdByLocale();
 
-    Optional<Language> getLanguageByLocale();
+    Language getDefaultLanguage();
+
+    Language getLanguageByCode(String langCode);
 }

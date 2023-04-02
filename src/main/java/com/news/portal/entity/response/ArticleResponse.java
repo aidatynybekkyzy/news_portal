@@ -1,5 +1,6 @@
-package com.news.portal.dto;
+package com.news.portal.entity.response;
 
+import com.news.portal.dto.ArticleDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

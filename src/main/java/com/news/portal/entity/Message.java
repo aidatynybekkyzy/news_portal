@@ -1,4 +1,4 @@
-package com.news.portal.model;
+package com.news.portal.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 public class Message {
     private HttpStatus status;
     private String message;
+
     public Message(String message) {
         this.message = message;
     }

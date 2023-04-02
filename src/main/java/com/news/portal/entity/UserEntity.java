@@ -1,4 +1,4 @@
-package com.news.portal.model;
+package com.news.portal.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
@@ -20,7 +20,8 @@ import java.util.*;
 @AllArgsConstructor
 public class UserEntity implements UserDetails {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy=GenerationType.AUTO, generator="users_seq_gen")
+    @SequenceGenerator(name="users_seq_gen", sequenceName="users_sequence", allocationSize = 1)
     @Column(nullable = false, updatable = false, unique = true)
     private Long id;
 
@@ -40,10 +41,12 @@ public class UserEntity implements UserDetails {
     @Size(min = 7, max = 60, message = "{validation.user.passwordSize}")
     @Column(name = "password", nullable = false)
     private String password;
+    @Transient
+    private String confirmPassword;
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
-    private List<Role> role = new ArrayList<>();
+    private Set<Role> role = new HashSet<>();
 
     @JsonIgnore
     @OneToMany(mappedBy = "author", fetch = FetchType.LAZY)
@@ -54,6 +57,7 @@ public class UserEntity implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+
         HashSet<GrantedAuthority> authorities = new HashSet<GrantedAuthority>(role.size());
         for (Role role : role)
             authorities.add(new SimpleGrantedAuthority("ROLE_" + role));
