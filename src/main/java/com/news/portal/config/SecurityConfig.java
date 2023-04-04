@@ -1,5 +1,6 @@
 package com.news.portal.config;
 
+import com.news.portal.entity.Article;
 import com.news.portal.entity.Role;
 import com.news.portal.security.jwt.JWTAuthFilter;
 import lombok.RequiredArgsConstructor;
@@ -26,10 +27,8 @@ public class SecurityConfig {
 
     private static final String AUTH_END_POINT = "/auth/**";
     private static final String ARTICLE_END_POINT = "/news_portal/article/**";
-    private static final String ADMIN = Role.builder()
-            .roleName("ADMIN").build().getRoleName();
-    private static final String USER = Role.builder()
-            .roleName("USER").build().getRoleName();
+    private static final String ADMIN = "ADMIN";
+    private static final String USER = "USER";
 
 
     @Bean
@@ -37,14 +36,16 @@ public class SecurityConfig {
         http
                 .csrf()
                 .disable()
-                .authorizeHttpRequests()
+                .authorizeRequests()
                 .antMatchers(HttpMethod.GET, ARTICLE_END_POINT).permitAll()
-               // .antMatchers(HttpMethod.POST, ARTICLE_END_POINT).hasAnyAuthority(USER, ADMIN)
-               // .antMatchers(HttpMethod.PATCH, ARTICLE_END_POINT).hasAnyAuthority(USER, ADMIN)
+                // .antMatchers(HttpMethod.POST, ARTICLE_END_POINT).hasAnyAuthority(USER, ADMIN)
+                // .antMatchers(HttpMethod.PATCH, ARTICLE_END_POINT).hasAnyAuthority(USER, ADMIN)
                 // .antMatchers(HttpMethod.DELETE, ARTICLE_END_POINT).hasAnyAuthority(USER,ADMIN)
                 .antMatchers(AUTH_END_POINT).permitAll()
-                .anyRequest()
+                .antMatchers(ARTICLE_END_POINT)
                 .authenticated()
+                .anyRequest()
+                .hasAnyRole("USER", "ADMIN")
                 .and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)

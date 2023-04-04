@@ -15,7 +15,7 @@ import java.util.Objects;
 @Table(name = "roles")
 @NoArgsConstructor
 @AllArgsConstructor
-public class Role {
+public class  Role {
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO, generator="roles_seq_gen")
     @SequenceGenerator(name="roles_seq_gen", sequenceName="roles_sequence", allocationSize = 1)

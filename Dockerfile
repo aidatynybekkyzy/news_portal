@@ -1,7 +1,12 @@
-FROM maven AS build
+FROM maven:3.8.6 AS build
 WORKDIR /app
-COPY . .
-RUN mvn package
+COPY pom.xml /app
+RUN mvn dependency:resolve
+COPY . /app
+RUN mvn clean
+RUN mvn package -DskipTests
 
-FROM tomcat
-COPY --from=build /app/target/file.war /usr/local/tomcat/webapps
+FROM openjdk:17-jdk-alpine
+COPY --from=build /app/target/*.jar app.jar
+EXPOSE 8080
+CMD ["java", "-jar", "app.jar"]
