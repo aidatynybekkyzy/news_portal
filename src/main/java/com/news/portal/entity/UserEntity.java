@@ -40,25 +40,28 @@ public class UserEntity implements UserDetails {
 
     @Size(min = 7, max = 60, message = "{validation.user.passwordSize}")
     @Column(name = "password", nullable = false)
+    @JsonIgnore
     private String password;
     @Transient
+    @JsonIgnore
     private String confirmPassword;
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
+    @JsonIgnore
     private Set<Role> role = new HashSet<>();
 
     @JsonIgnore
     @OneToMany(mappedBy = "author", fetch = FetchType.LAZY)
     private List<Article> articles;
-
+    @JsonIgnore
     @OneToMany(mappedBy = "user")
     private List<Token> tokens;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
 
-        HashSet<GrantedAuthority> authorities = new HashSet<GrantedAuthority>(role.size());
+        HashSet<GrantedAuthority> authorities = new HashSet<>(role.size());
         for (Role role : role)
             authorities.add(new SimpleGrantedAuthority("ROLE_" + role));
         return authorities;

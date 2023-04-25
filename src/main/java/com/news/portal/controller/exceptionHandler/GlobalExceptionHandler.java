@@ -1,19 +1,16 @@
 package com.news.portal.controller.exceptionHandler;
 
-import com.news.portal.exception.*;
 import com.news.portal.entity.response.CustomResponse;
 import com.news.portal.entity.response.MethodArgumentNotValidResponse;
+import com.news.portal.exception.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
-
-import java.util.NoSuchElementException;
 
 @ControllerAdvice
 @Slf4j
@@ -40,23 +37,16 @@ public class GlobalExceptionHandler {
         return new CustomResponse(exception);
     }
 
-    @ResponseBody
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    @ExceptionHandler({NoSuchElementException.class})
-    public CustomResponse catchNoSuchElementException(NoSuchElementException exception) {
-        return new CustomResponse(exception);
-    }
-
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    @ExceptionHandler({BadCredentialsException.class})
-    public CustomResponse badCredentials(BadCredentialsException exception) {
-        log.error("BadCredentialsException was thrown. UNAUTHORIZED");
+    @ExceptionHandler({AccessDeniedException.class})
+    public CustomResponse accessDenied(AccessDeniedException exception) {
+        log.error("AccessDeniedException was thrown. UNAUTHORIZED");
         return new CustomResponse(exception);
     }
 
-    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler({ArticleAlreadyExistsException.class})
-    public CustomResponse newsAlreadyExist(ArticleAlreadyExistsException exception) {
+    public CustomResponse articleAlreadyExist(ArticleAlreadyExistsException exception) {
         log.error("ArticleAlreadyExistsException was thrown");
         return new CustomResponse(exception);
     }

@@ -1,16 +1,16 @@
 package com.news.portal.service.impl;
 
-import com.news.portal.exception.BatchDeleteException;
-import com.news.portal.entity.Language;
-import com.news.portal.service.ArticleService;
-import com.news.portal.mapper.ArticleMapper;
 import com.news.portal.dto.ArticleDto;
-import com.news.portal.exception.ArticleAlreadyExistsException;
-import com.news.portal.exception.ArticleNotFoundException;
 import com.news.portal.entity.Article;
+import com.news.portal.entity.Language;
 import com.news.portal.entity.Message;
+import com.news.portal.entity.UserEntity;
+import com.news.portal.exception.*;
+import com.news.portal.mapper.ArticleMapper;
 import com.news.portal.repository.ArticleRepository;
-import com.news.portal.mapper.UserMapper;
+import com.news.portal.repository.LanguageRepository;
+import com.news.portal.repository.UserRepository;
+import com.news.portal.service.ArticleService;
 import com.news.portal.service.LanguageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +22,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,54 +29,65 @@ import java.util.Optional;
 @Slf4j
 public class ArticleServiceImpl implements ArticleService {
 
-    private final UserMapper userMapper;
-
     private final ArticleRepository articleRepository;
     private final ArticleMapper articleMapper;
     private final LanguageService languageService;
+    private final UserRepository userRepository;
+
+    private final LanguageRepository languageRepository;
 
 
     @Autowired
-    public ArticleServiceImpl(UserMapper userMapper, ArticleRepository articleRepository,
-                              ArticleMapper articleMapper, LanguageService languageService) {
-        this.userMapper = userMapper;
+    public ArticleServiceImpl(ArticleRepository articleRepository,
+                              ArticleMapper articleMapper, LanguageService languageService, UserRepository userRepository, LanguageRepository languageRepository) {
         this.articleRepository = articleRepository;
         this.articleMapper = articleMapper;
         this.languageService = languageService;
+        this.userRepository = userRepository;
+        this.languageRepository = languageRepository;
     }
 
 
     @Override
     @Transactional
-    public ArticleDto createArticle(ArticleDto articleDto) {
+    public ArticleDto createArticle(ArticleDto articleDto) throws UserNotFoundException, ArticleAlreadyExistsException {
         log.info("Creating new article");
 
-        Optional<Article> optionalArticle = articleRepository.findByTitleAndLanguage_Code(articleDto.getTitle(), articleDto.getLangCode());
-
-        if (optionalArticle.isPresent()) {
+        if (articleExists(articleDto.getId(), articleDto.getTitle())) {
             log.error("The same article already exists");
-            throw new ArticleAlreadyExistsException("News with title " + articleDto.getTitle() + " already exists");
+            throw new ArticleAlreadyExistsException("Article with title: " + articleDto.getTitle() + " already exists");
         }
-        Article article = new Article();
-        article.setTitle(articleDto.getTitle());
-        article.setPreview(articleDto.getPreview());
-        article.setContent(articleDto.getContent());
-        article.setAuthor(userMapper.toEntity(articleDto.getAuthor()));
-        article.setPublishedDate(LocalDateTime.now());
+        else {
+            Article article = new Article();
+            article.setId(articleDto.getId());
+            article.setTitle(articleDto.getTitle());
+            article.setPreview(articleDto.getPreview());
+            article.setContent(articleDto.getContent());
+            article.setPublishedDate(articleDto.getPublishedDate());
 
-        Language language = languageService.getLanguageByCode(articleDto.getLangCode());
-        article.setLanguage(language);
+            Optional<UserEntity> optionalAuthor = userRepository.findById(articleDto.getAuthor().getId());
 
-        articleRepository.save(article);
+            if (optionalAuthor.isEmpty()) {
+                throw new UserNotFoundException("User not found with name" + articleDto.getAuthor().getId());
+            }
+            article.setAuthor(optionalAuthor.get());
 
-        log.info("New Article saved");
+            Optional<Language> optionalLanguage = languageRepository.findByCode(articleDto.getLangCode());
+            if (optionalLanguage.isEmpty()) {
+                throw new LanguageNotFoundException(" " + articleDto.getLangCode());
+            }
+            article.setLanguage(optionalLanguage.get());
 
-        return articleMapper.toDto(article);
+            articleRepository.save(article);
+
+            log.info("New Article saved");
+
+            return articleMapper.INSTANCE.toDto(article);
+        }
     }
 
     @Override
     public ArticleDto getArticleByIdAndLangCode(Long id, String langCode) {
-        Language language = languageService.getLanguageByCode(langCode);
         log.info("Getting Article by Id and LangCode");
         return articleRepository.findByIdAndLanguage_Code(id, langCode)
                 .map(articleMapper::toDto)
@@ -88,13 +98,13 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     @Transactional(readOnly = true)
-    public ArticleDto getArticleByIdLocale(Long id) {
+    public ArticleDto getArticleByIdLocale(Long article_id) {
         long languageId = languageService.getLanguageIdByLocale();
         log.info("Getting Article by Id");
-        return articleRepository.findByIdAndLanguageId(id, languageId)
+        return articleRepository.findByIdAndLanguageId(article_id, languageId)
                 .map(articleMapper::toDto)
                 .orElseThrow(
-                        () -> new ArticleNotFoundException("Article not found " + id));
+                        () -> new ArticleNotFoundException("Article not found " + article_id));
     }
 
     @Override
@@ -109,6 +119,7 @@ public class ArticleServiceImpl implements ArticleService {
         return articlesPage.map(articleMapper::toDto);
     }
 
+
     @Override
     public Page<ArticleDto> getAllArticlesByLangCode(int pageNo, int pageSize, String langCode) {
         Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.Direction.DESC, "publishedDate");
@@ -122,7 +133,7 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     @Transactional
-    public ArticleDto updateArticle(Long articleId, ArticleDto articleDto) {
+    public ArticleDto updateArticle( ArticleDto articleDto) throws ArticleAlreadyExistsException {
         Optional<Article> optionalArticle = articleRepository.findById(articleDto.getId());
 
         if (optionalArticle.isEmpty()) {
@@ -145,7 +156,7 @@ public class ArticleServiceImpl implements ArticleService {
         }
 
         if (articleDto.getAuthor() != null) {
-            article.setAuthor(userMapper.toEntity(articleDto.getAuthor()));
+            article.setAuthor(articleDto.getAuthor());
         }
 
         if (articleDto.getPublishedDate() != null) {
@@ -162,7 +173,7 @@ public class ArticleServiceImpl implements ArticleService {
     @CacheEvict(value = "articleCache", key = "#id")
     public Message deleteArticle(Long id) {
         Article article = articleRepository.findById(id).orElseThrow(
-                () -> new ArticleNotFoundException("Article with id" + id + " not found"));
+                () -> new ArticleNotFoundException("Article with id " + id + " not found"));
         articleRepository.delete(article);
 
         log.info("Deleting article with id" + article.getId());
@@ -171,7 +182,6 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Transactional(rollbackFor = BatchDeleteException.class)
-    @CacheEvict(value = "articleCache", key = "#id")
     public void deleteInBatch(List<Long> articleIds) throws BatchDeleteException {
 
         List<Article> articlesToDelete = articleRepository.findByIdIn(articleIds);
@@ -186,6 +196,12 @@ public class ArticleServiceImpl implements ArticleService {
         } catch (Exception e) {
             throw new BatchDeleteException("Failed to delete articles." + e.getMessage());
         }
+    }
+
+
+    public boolean articleExists(Long id, String title) {
+        Optional<Article> article = articleRepository.findByIdAndTitle(id, title);
+        return article.isPresent();
     }
 
 

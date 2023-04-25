@@ -4,11 +4,12 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -35,27 +36,26 @@ public class Article {
     @Column(name = "content", nullable = false)
     @Size(min = 20, max = 2048, message = "Content should be from 20 to 2048 characters")
     private String content;
-
-    @Column(name = "publishedDate")
+    @CreatedDate
+    @Column(name = "published_date")
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "YYYY-MM-DD hh:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "YYYY-MM-DD")
     @NotNull
-    private LocalDateTime publishedDate;
+    private LocalDate publishedDate;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)
     @JoinColumn(name = "language_id")
     private Language language;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "author_id", nullable = false, updatable = false)
+    @JoinColumn(name = "author_id", nullable = false, updatable = false, referencedColumnName = "id")
     private UserEntity author;
 
-   /* @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Article that = (Article) o;
-        return id == that.id;
-    }*/
-
+    public Article(long id, String title, String preview, String content, LocalDate date) {
+        this.id = id;
+        this.title = title;
+        this.preview = preview;
+        this.content = content;
+        this.publishedDate = date;
+    }
 }

@@ -1,10 +1,7 @@
 package com.news.portal.config;
 
-import com.news.portal.entity.Article;
-import com.news.portal.entity.Role;
 import com.news.portal.security.jwt.JWTAuthFilter;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -38,14 +35,11 @@ public class SecurityConfig {
                 .disable()
                 .authorizeRequests()
                 .antMatchers(HttpMethod.GET, ARTICLE_END_POINT).permitAll()
-                // .antMatchers(HttpMethod.POST, ARTICLE_END_POINT).hasAnyAuthority(USER, ADMIN)
-                // .antMatchers(HttpMethod.PATCH, ARTICLE_END_POINT).hasAnyAuthority(USER, ADMIN)
-                // .antMatchers(HttpMethod.DELETE, ARTICLE_END_POINT).hasAnyAuthority(USER,ADMIN)
                 .antMatchers(AUTH_END_POINT).permitAll()
                 .antMatchers(ARTICLE_END_POINT)
                 .authenticated()
                 .anyRequest()
-                .hasAnyRole("USER", "ADMIN")
+                .hasAnyRole(USER, ADMIN)
                 .and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)

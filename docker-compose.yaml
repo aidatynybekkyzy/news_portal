@@ -1,43 +1,51 @@
 services:
-  postgres:
-    image: 'postgres:15.1'
-    container_name: 'postgres'
+  postgresqldb:
+    image: 'postgres:14.7'
+    container_name: postgresqldb
     ports:
-      - 5432:5432
+      - "5432:5432"
     expose:
       - 5432
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 1234
       POSTGRES_ROOT_PASSWORD: 1234
-      POSTGRES_DATABASE: news_portal
-      PGDATA: /data/postgres
+      POSTGRES_DB: news_portal
+      PGDATA: /var/lib/postgresql/data/pgdata
       POSTGRES_HOST_AUTH_METHOD: trust
+
+    volumes:
+      - .:/docker-entrypoint-initdb.d
+      - .:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
     networks:
       - apinetwork
-    volumes:
-      - ./postgresql/:/var/lib/postgresql/data/
 
   app:
     container_name: 'news-portal'
     image: news-portal
     build:
       context: .
+      dockerfile: Dockerfile
     restart: always
     ports:
-      - 8080:8080
-    expose:
-      - 8080
+      - "8080:8080"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/news-portal
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgresqldb:5432/news_portal
       SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: 1234
+      SPRING_DATASOURCE_PASSWORD: '1234'
+      SPRING_JPA_HIBERNATE_DDL_AUTO: create-drop
     depends_on:
-      - postgres
+      - postgresqldb
     networks:
       - apinetwork
 
 networks:
   apinetwork:
+
     driver: bridge
 

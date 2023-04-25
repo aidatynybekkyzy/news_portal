@@ -23,16 +23,19 @@ public class Language {
     @Column(nullable = false, unique = true)
     private String code;
 
-    /*@Column(name = "messagekey")
-    private String key;
-    @Column(name = "messagecontent")
-    private String content;*/
-
     @JsonIgnore
     @OneToMany(mappedBy = "language")
     private Set<Article> articles;
 
     public Language(String en) {
+        this.code = en;
+    }
+    public Language(long id){
+        this.id = id;
+    }
+
+    public Language(long id, String en) {
+        this.id =  id;
         this.code = en;
     }
 }

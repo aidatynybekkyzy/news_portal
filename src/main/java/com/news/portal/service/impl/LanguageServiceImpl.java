@@ -1,7 +1,6 @@
 package com.news.portal.service.impl;
-
-import com.news.portal.exception.LanguageNotFoundException;
 import com.news.portal.entity.Language;
+import com.news.portal.exception.LanguageNotFoundException;
 import com.news.portal.repository.LanguageRepository;
 import com.news.portal.service.LanguageService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +32,7 @@ public class LanguageServiceImpl implements LanguageService {
 
     @Override
     public Language getDefaultLanguage() {
-        Optional<Language> language = languageRepository.findByCode("en");
+        Optional<Language> language = languageRepository.findByCode("ru");
         return language.orElseThrow(() -> new LanguageNotFoundException(language.get().getCode()));
     }
 
