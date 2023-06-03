@@ -63,7 +63,7 @@ class AuthControllerTest {
 
     @Test
     @DisplayName("Register new user")
-    void register() throws Exception {
+    void testRegister() throws Exception {
         RegistrationRequestDto requestDto = new RegistrationRequestDto();
         requestDto.setFirstname("User");
         requestDto.setLastname("Test");
@@ -94,6 +94,7 @@ class AuthControllerTest {
     }
 
     @Test
+    @DisplayName("Login  user")
     public void testAuthenticate() throws Exception {
 
         String email = "john.doe@example.com";
@@ -121,11 +122,11 @@ class AuthControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.accessToken").value(responseDto.getAccessToken()))
                 .andDo(print());
-
     }
 
     @Test
-    void logout() throws Exception {
+    @DisplayName("Logout user")
+    void testLogout() throws Exception {
         mockMvc.perform(post("/auth/logout"))
                 .andExpect(status().isOk())
                 .andDo(print());

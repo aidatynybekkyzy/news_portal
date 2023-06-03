@@ -56,8 +56,7 @@ public class ArticleServiceImpl implements ArticleService {
         if (articleExists(articleDto.getId(), articleDto.getTitle())) {
             log.error("The same article already exists");
             throw new ArticleAlreadyExistsException("Article with title: " + articleDto.getTitle() + " already exists");
-        }
-        else {
+        } else {
             Article article = new Article();
             article.setId(articleDto.getId());
             article.setTitle(articleDto.getTitle());
@@ -88,7 +87,9 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public ArticleDto getArticleByIdAndLangCode(Long id, String langCode) {
+
         log.info("Getting Article by Id and LangCode");
+
         return articleRepository.findByIdAndLanguage_Code(id, langCode)
                 .map(articleMapper::toDto)
                 .orElseThrow(
@@ -133,7 +134,7 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     @Transactional
-    public ArticleDto updateArticle( ArticleDto articleDto) throws ArticleAlreadyExistsException {
+    public ArticleDto updateArticle(ArticleDto articleDto) throws ArticleAlreadyExistsException {
         Optional<Article> optionalArticle = articleRepository.findById(articleDto.getId());
 
         if (optionalArticle.isEmpty()) {
